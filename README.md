@@ -12,7 +12,7 @@ Esta herramienta fue desarrollada para facilitar la consulta y consumo de conten
 
 ---
 
-## ? Características Principales
+## Características Principales
 
 - **Descargador Nativo Integrado (NUEVO)**: Cola de descargas desde los servidores de video directamente al disco, **ahora con soporte total para HLS (.m3u8)**.
 - **Motor FFmpeg Stealth**: El sistema intercepta reproductores protegidos (como Zilla Networks) engañándolos con *User-Agents* y *Referers* inyectados directamente en FFmpeg para compilar y descargar los fragmentos .ts a un archivo .mp4 perfecto, evadiendo bloqueos.
@@ -30,13 +30,13 @@ Este repositorio incluye todo el backend listo para levantarse en tu entorno loc
 ### 1. Requisitos
 
 - [Node.js](https://nodejs.org/) 18 o superior.
-- (Opcional) Las librerías luent-ffmpeg y fmpeg-static ya vienen integradas para no requerir instalación extra en Windows/Linux.
+- (Opcional) Las librerías fluent-ffmpeg y ffmpeg-static ya vienen integradas para no requerir instalación extra en Windows/Linux.
 
 ### 2. Configurar Variables de Entorno
 
 Copia el archivo base de variables de entorno:
 
-`ash
+`bash
 cp .env.example .env
 `
 
@@ -46,7 +46,7 @@ En el archivo .env puedes definir rutas de descarga (DOWNLOADS_DIR="D:\Mis Anime
 
 Instala las librerías e inicia el entorno de desarrollo:
 
-`ash
+`bash
 npm install
 npm run dev
 `
@@ -59,7 +59,7 @@ El servidor local estará corriendo por defecto en http://localhost:3001. Cada v
 
 El proyecto provee el script descargador.js diseñado íntegramente por **FxxMorgan** para usar el motor de descarga extrema desde la consola.
 
-`ash
+`bash
 node descargador.js
 `
 
