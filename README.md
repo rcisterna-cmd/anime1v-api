@@ -6,11 +6,12 @@
 </div>
 
 <div align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
+  <image-card alt="Stars" src="https://img.shields.io/github/stars/FxxMorgan/anime1v-api" ></image-card>
+  <image-card alt="Forks" src="https://img.shields.io/github/forks/FxxMorgan/anime1v-api" ></image-card>
+  <image-card alt="License" src="https://img.shields.io/github/license/FxxMorgan/anime1v-api" ></image-card>
   <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/Open%20Source-FxxMorgan-blue" alt="Open Source"></a>
-  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/stars-110+-yellow.svg" alt="Stars"></a>
-  <a href="https://github.com/FxxMorgan/"><img src="https://img.shields.io/badge/forks-20+-lightgrey.svg" alt="Forks"></a>
 </div>
+
 
 Esta herramienta fue desarrollada para facilitar la consulta y consumo de contenido automatizado. Ha sido liberada de manera gratuita para la comunidad. Si utilizas este código en tus proyectos, sitios web o aplicaciones, **el Core Engine imprimirá automáticamente los créditos correspondientes a su creador original (FxxMorgan)** en los headers HTTP y en la consola. Esto es parte de la licencia de uso libre.
 
