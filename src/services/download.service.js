@@ -693,7 +693,7 @@ async function resolveFilemoonUrl(url, referer) {
 
     const extracted = findFirstUrl(html, [
       /sources?\s*:\s*\[\s*\{[^}]*src\s*:\s*["']([^"']+)["']/i,
-      /file\s*:\s*"([^"]+)"/i,
+      /file\s*:\s*"([^"\)]+)"/i,
     ]);
 
     if (extracted) {
