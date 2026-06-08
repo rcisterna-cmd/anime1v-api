@@ -14,6 +14,7 @@ const port = Number(process.env.PORT || 3000);
 
 app.use(
   helmet({
+    contentSecurityPolicy: false,
     crossOriginResourcePolicy: false,
   })
 );
@@ -32,6 +33,7 @@ const staticDownloadOptions = {
 
 app.use("/downloads", express.static(downloadsDir, staticDownloadOptions));
 app.use("/api/downloads", express.static(downloadsDir, staticDownloadOptions));
+app.use(express.static(path.join(__dirname, "../public")));
 
 app.get("/", (_req, res) => {
   res.status(200).json({

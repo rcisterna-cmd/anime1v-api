@@ -115,39 +115,85 @@ function findProviderForUrl(urlCandidate) {
 
 async function searchAnime(query, domainCandidate) {
   const forcedProvider = findProviderByDomain(domainCandidate) || findProviderById(domainCandidate);
-  const providersToTry = forcedProvider ? [forcedProvider] : PROVIDERS;
 
-  let lastEmpty = null;
-  const errors = [];
+  if (forcedProvider) {
+    const result = await forcedProvider.service.searchAnime(query, forcedProvider.domains[0]);
+    if (result && result.data && Array.isArray(result.data.results)) {
+      result.data.results.forEach(item => {
+        item.provider = forcedProvider.label;
+        if (item.url) item.slug = item.url;
+      });
+    }
+    return {
+      ...result,
+      source: result?.source || forcedProvider.id,
+    };
+  }
 
-  for (const provider of providersToTry) {
+  // Búsqueda unificada en paralelo en todos los proveedores
+  const searchPromises = PROVIDERS.map(async (provider) => {
     try {
       const result = await provider.service.searchAnime(query, provider.domains[0]);
-      const count = result?.data?.count ?? 0;
-      if (count > 0 || forcedProvider) {
-        return {
-          ...result,
-          source: result?.source || provider.id,
-        };
-      }
-
-      if (!lastEmpty) {
-        lastEmpty = {
-          ...result,
-          source: result?.source || provider.id,
-        };
-      }
+      const results = result?.data?.results || [];
+      results.forEach(item => {
+        item.provider = provider.label;
+        if (item.url) item.slug = item.url;
+      });
+      return {
+        success: true,
+        providerId: provider.id,
+        providerLabel: provider.label,
+        results,
+        originalResult: result
+      };
     } catch (error) {
-      errors.push({ provider: provider.id, error });
+      console.warn(`[SEARCH] Error en proveedor ${provider.id}:`, error.message);
+      return {
+        success: false,
+        providerId: provider.id,
+        error
+      };
+    }
+  });
+
+  const searchResults = await Promise.all(searchPromises);
+
+  const allResults = [];
+  const errors = [];
+  let firstEmptyResult = null;
+
+  for (const res of searchResults) {
+    if (res.success) {
+      if (res.results.length > 0) {
+        allResults.push(...res.results);
+      } else if (!firstEmptyResult) {
+        firstEmptyResult = res.originalResult;
+      }
+    } else {
+      errors.push(res.error);
     }
   }
 
-  if (lastEmpty) {
-    return lastEmpty;
+  if (allResults.length > 0) {
+    return {
+      success: true,
+      source: "Multi",
+      data: {
+        results: allResults,
+        count: allResults.length
+      }
+    };
   }
 
-  if (errors.length === providersToTry.length && errors[0]?.error) {
-    throw errors[0].error;
+  if (firstEmptyResult) {
+    return {
+      ...firstEmptyResult,
+      source: "Multi"
+    };
+  }
+
+  if (errors.length === PROVIDERS.length && errors[0]) {
+    throw errors[0];
   }
 
   throw new ApiError(502, "No se pudo completar la busqueda en proveedores");
@@ -160,6 +206,10 @@ async function getAnimeInfo(urlCandidate) {
   }
 
   const result = await provider.service.getAnimeInfo(urlCandidate);
+  if (result && result.data) {
+    result.data.slug = urlCandidate;
+    result.data.url = urlCandidate;
+  }
   return {
     ...result,
     source: result?.source || provider.id,

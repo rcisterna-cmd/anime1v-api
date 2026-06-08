@@ -63,8 +63,20 @@ async function extractStreamwish(pageUrl) {
       });
       html = res.data;
     } catch (e) {
-      console.error('[SW RESOLVER] Error descargando página:', e.message);
-      return null;
+      console.warn('[SW RESOLVER] Error descargando página redirigida, intentando original:', e.message);
+      try {
+        const res = await axiosGet(pageUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0',
+            'Accept': '*/*',
+            'Referer': pageUrl
+          }
+        });
+        html = res.data;
+      } catch (errOriginal) {
+        console.error('[SW RESOLVER] Error descargando página original también:', errOriginal.message);
+        return null;
+      }
     }
 
     const scriptMatch = html.match(

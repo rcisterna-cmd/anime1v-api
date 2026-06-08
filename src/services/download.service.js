@@ -43,7 +43,9 @@ async function resolveEmbedWithPuppeteer(url, referer) {
     let interceptedUrl = null;
     page.on("request", (req) => {
       const rUrl = req.url();
-      if (!interceptedUrl && (rUrl.includes('.m3u8') || rUrl.includes('.mp4')) && !rUrl.startsWith("blob:") && !rUrl.includes("blank")) {
+      const isDocument = req.resourceType() === "document";
+      const isMedia = /\.(?:m3u8|mp4)(?:\?|#|$)/i.test(rUrl);
+      if (!interceptedUrl && !isDocument && isMedia && !rUrl.startsWith("blob:") && !rUrl.includes("blank")) {
         interceptedUrl = rUrl;
       }
     });
@@ -344,7 +346,8 @@ function isLikelyVideoUrl(url) {
   }
 
   // Accept .mp4, .m3u8 (HLS), or direct video URLs
-  return /\.(mp4|m3u8)$/i.test(url) || lower.includes("video") || lower.includes("stream") || lower.includes(".mp4") || lower.includes(".m3u8");
+  const hasVideoExtension = /\.(?:mp4|m3u8)(?:\?|#|$)/i.test(url);
+  return hasVideoExtension || lower.includes("video") || lower.includes("stream");
 }
 
 async function fetchHtmlWithHeaders(url, referer) {
@@ -930,6 +933,20 @@ async function resolveEmbedUrl(url, record, candidate) {
     debugLog("resolveEmbed", "Using Doodstream resolver", null);
     const resolved = await resolveDoodstreamUrl(url, referer);
     if (resolved) return resolved;
+  }
+
+  if (/mp4upload/i.test(host)) {
+    debugLog("resolveEmbed", "Using MP4Upload resolver", null);
+    if (!pathname.includes("embed") && !pathname.endsWith(".html")) {
+      const slug = pathname.split("/").filter(Boolean).pop();
+      if (slug) {
+        url = `https://www.mp4upload.com/embed-${slug}.html`;
+        debugLog("resolveEmbed", `Converted MP4Upload download URL to embed: ${url}`, null);
+      }
+    }
+    const resolved = await resolveEmbedWithPuppeteer(url, referer);
+    if (resolved) return resolved;
+    throw new Error("No se pudo resolver enlace directo en MP4Upload");
   }
 
   // 2. VOE AND DYNAMIC DOMAINS
